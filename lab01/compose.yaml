@@ -1,0 +1,14 @@
+services:
+  workspace:
+    build:
+      context: .
+      dockerfile: ../Dockerfile
+    container_name: "ros-jazzy-t1"
+    network_mode: "host"
+    environment:
+      - DISPLAY=${DISPLAY:-:0}  # Берет DISPLAY с хоста, по умолчанию :0
+    volumes:
+      - .:/home/ubuntu/workbench
+      - ../tmux.conf:/home/ubuntu/.tmux.conf
+      - /tmp/.X11-unix:/tmp/.X11-unix  # <-- ВАЖНО: проброс графического сокета
+    ipc: host

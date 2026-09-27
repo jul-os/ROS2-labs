@@ -1,0 +1,9 @@
+.course-kit/
+robotics-course-kit-*.tar.gz
+.course-kit/
+*.tar.gz
+*.sha256.txt
+build/
+install/
+log/
+robotics-course-kit-*.sha256.txt
