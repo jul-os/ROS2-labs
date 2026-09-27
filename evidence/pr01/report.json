@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR01",
+  "commit": "5f145bb1eb49a8f914c66678ecc81ba6e213b807",
+  "course_kit": {
+    "version": "v1-w03",
+    "archive_sha256": "7fbfd3e8161ab6c6ebefc7663efdaf77d9a7d490399743507f33dcefbd5ac522"
+  },
+  "commands": [
+    "source /opt/ros/jazzy/setup.bash",
+    "export ROS_DOMAIN_ID=16",
+    "ros2 run turtlesim turtlesim_node",
+    "ros2 run turtlesim turtle_teleop_key",
+    "ros2 node list --no-daemon --spin-time 2",
+    "ros2 topic list -t",
+    "ros2 node info /turtlesim",
+    "ros2 topic type /turtle1/pose",
+    "ros2 topic echo /turtle1/pose --once",
+    "ros2 topic hz /turtle1/pose",
+    "export ROS_DOMAIN_ID=17",
+    "timeout 5s ros2 topic echo /turtle1/pose turtlesim/msg/Pose --once",
+    "export ROS_DOMAIN_ID=16",
+    "timeout 5s ros2 topic echo /turtle1/pose turtlesim/msg/Pose --once",
+    "ros2 doctor --report"
+  ],
+  "tests": [
+    {"name": "node_discovery_domain_16", "status": "passed"},
+    {"name": "topic_list_with_types", "status": "passed"},
+    {"name": "pose_type_resolution", "status": "passed"},
+    {"name": "pose_message_received", "status": "passed"},
+    {"name": "pose_frequency_measurement", "status": "passed"},
+    {"name": "domain_isolation_exit_124", "status": "passed"},
+    {"name": "domain_restoration_exit_0", "status": "passed"},
+    {"name": "environment_json_valid", "status": "passed"}
+  ],
+  "defect": {
+    "reproducer": "В Терминале B (teleop) и Терминале C (наблюдение) выполнено: export ROS_DOMAIN_ID=17. Команда `timeout 5s ros2 topic echo /turtle1/pose turtlesim/msg/Pose --once` завершилась с exit=124 (таймаут), данные позы не получены. В выводе `ros2 node list` видна только /teleop_turtle, нода /turtlesim отсутствует.",
+    "root_cause": "ROS_DOMAIN_ID определяет область discovery нод. Издатель /turtlesim работает в домене 16, а подписчик в Терминале C ищет его в домене 17. Протокол discovery (multicast UDP) не пересекает границы доменов, поэтому сообщения физически не доставляются. Экспорт переменной не перенастраивает уже запущенные ноды — нужно перезапустить teleop с новым ROS_DOMAIN_ID.",
+    "proof_after": "После возврата `export ROS_DOMAIN_ID=16` в Терминале C команда `timeout 5s ros2 topic echo /turtle1/pose turtlesim/msg/Pose --once` завершилась с exit=0 и вывела актуальные координаты позы (x=5.544, y=5.544, theta=0.0). В `ros2 node list` снова видны обе ноды: /turtlesim и /teleop_turtle."
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "time": {
+    "contact_academic_hours": 0,
+    "self_study_hours": 6
+  },
+  "ai_used": true
+}
