@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR02",
+  "commit": "c48c2a9a34021d81b740537cd4eec371c1e2e84a",
+  "course_kit": {
+    "version": "v1-w05",
+    "archive_sha256": "bca214e3de6f90f9513049dfa0f36fee65ad834da502dc3f3f8fb443517b5197"
+  },
+  "commands": [
+    "source /opt/ros/jazzy/setup.bash",
+    "export ROS_DOMAIN_ID=16",
+    "ros2 pkg prefix turtlesim",
+    "cd src && ros2 pkg create --build-type ament_python --license Apache-2.0 turtle_bringup --dependencies launch launch_ros turtlesim",
+    "colcon build --symlink-install --packages-select turtle_bringup",
+    "source install/setup.bash && ros2 pkg prefix turtle_bringup",
+    "ros2 launch turtle_bringup sim.launch.py",
+    "ros2 node list --no-daemon --spin-time 2",
+    "ros2 topic echo /turtle1/pose --once",
+    "ros2 topic pub --rate 1 /turtle1/cmd_vel geometry_msgs/msg/Twist '{linear: {x: 1.0}, angular: {z: 0.5}}'",
+    "ros2 topic pub --rate 1 --wait-matching-subscriptions 0 /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 1.0}, angular: {z: 0.5}}'",
+    "ros2 topic info /cmd_vel --verbose",
+    "ros2 topic info /turtle1/cmd_vel --verbose"
+  ],
+  "tests": [
+    {"name": "package builds", "status": "passed"},
+    {"name": "launch file installed", "status": "passed"},
+    {"name": "turtlesim launches and stops", "status": "passed"},
+    {"name": "Twist command moves turtle", "status": "passed"},
+    {"name": "wrong topic name does not move turtle", "status": "passed"},
+    {"name": "corrected topic name restores movement", "status": "passed"}
+  ],
+  "defect": {
+    "reproducer": "ros2 topic pub --rate 1 --wait-matching-subscriptions 0 /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 1.0}, angular: {z: 0.5}}' — черепаха не двигается, хотя издатель публикует сообщения",
+    "root_cause": "Топик /cmd_vel не совпадает с топиком подписчика /turtle1/cmd_vel ноды turtlesim. Издатель и подписчик не находят друг друга, несмотря на правильный тип сообщения Twist.",
+    "proof_after": "После замены /cmd_vel на /turtle1/cmd_vel черепаха начинает двигаться: координаты изменились с x=5.544, y=5.544, theta=0.0 на x=6.721, y=9.156, theta=2.504"
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "time": {
+    "contact_academic_hours": 2,
+    "self_study_hours": 2
+  },
+  "ai_used": true
+}
