@@ -1,0 +1,21 @@
+services:
+  workspace:
+    build:
+      context: .
+      dockerfile: ../Dockerfile
+    container_name: "ros-jazzy-t2"
+    command: tail -f /dev/null
+    network_mode: "host"
+    environment:
+      - DISPLAY=:0
+      - XAUTHORITY=/tmp/.Xauthority
+      - XDG_RUNTIME_DIR=/tmp
+      - WAYLAND_DISPLAY=wayland-0
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - ..:/home/ubuntu/workbench
+      - ../tmux.conf:/home/ubuntu/.tmux.conf
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /run/user/1000/wayland-0:/tmp/wayland-0
+      - /run/user/1000/.mutter-Xwaylandauth.M4NXW3:/tmp/.Xauthority
+    ipc: host
