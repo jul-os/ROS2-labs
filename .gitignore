@@ -7,3 +7,5 @@ build/
 install/
 log/
 robotics-course-kit-*.sha256.txt
+__pycache__/
+*.pyc
