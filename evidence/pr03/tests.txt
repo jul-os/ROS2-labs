@@ -1,0 +1,36 @@
+# PR03 — Результаты тестов
+
+## Юнит-тесты
+
+```bash
+python3 -m pytest src/patrol/test -v
+```
+
+Результат: 3 теста пройдено
+- test_none_pose_returns_zero_twist
+- test_pose_returns_patrol_command
+- test_pose_with_different_values
+
+## Сборка
+
+```bash
+colcon build --symlink-install --packages-select patrol
+```
+
+Результат: успешно
+
+## Запуск ноды
+
+```bash
+ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel
+```
+
+Результат: нода запущена, черепаха движется
+
+## Частота публикации
+
+```bash
+ros2 topic hz /turtle1/cmd_vel
+```
+
+Результат: ~10 Hz (период 0.1 с)

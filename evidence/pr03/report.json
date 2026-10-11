@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR03",
+  "commit": "ed4e4c9a3623c7b4e55619e820f2eda5f2e4df1b",
+  "course_kit": {
+    "version": "v1-w05",
+    "archive_sha256": "bca214e3de6f90f9513049dfa0f36fee65ad834da502dc3f3f8fb443517b5197"
+  },
+  "commands": [
+    "ros2 pkg create --build-type ament_python --node-name patrol patrol --dependencies rclpy geometry_msgs",
+    "colcon build --symlink-install --packages-select patrol",
+    "source install/setup.bash",
+    "python3 -m pytest src/patrol/test",
+    "ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel",
+    "ros2 topic hz /turtle1/cmd_vel"
+  ],
+  "tests": [
+    {"name": "package builds", "status": "passed"},
+    {"name": "unit tests pass", "status": "passed"},
+    {"name": "node starts and stops", "status": "passed"},
+    {"name": "pose subscription works", "status": "passed"},
+    {"name": "timer publishes Twist", "status": "passed"},
+    {"name": "wrong topic name does not move turtle", "status": "passed"},
+    {"name": "remap fixes topic connection", "status": "passed"}
+  ],
+  "defect": {
+    "reproducer": "ros2 run patrol patrol — черепаха не двигается, хотя нода работает и публикует сообщения",
+    "root_cause": "Нода публикует в относительный топик cmd_vel, который не соединён с /turtle1/cmd_vel ноды turtlesim. Нужен remap при запуске.",
+    "proof_after": "ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel — черепаха начинает двигаться"
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "time": {
+    "contact_academic_hours": 2,
+    "self_study_hours": 2
+  },
+  "ai_used": true
+}
