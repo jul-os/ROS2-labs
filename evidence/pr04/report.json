@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "practice_id": "PR04",
-  "commit": "55193365d470292f84308f0e7ace8d12227f4bba",
+  "commit": "2615f4a01e2cf94b1f85b88285e3b9b2d1f9ccf4",
   "course_kit": {
     "version": "v1-w06",
     "archive_sha256": "6eda53e1c566f7f0a7e09d7afe1e5a6f3b98397175a7e57dede9a84c6d14d0fe"
@@ -29,7 +29,7 @@
       "status": "passed"
     },
     {
-      "name": "unit tests pass (12 tests)",
+      "name": "unit tests pass (19 tests)",
       "status": "passed"
     },
     {
@@ -58,6 +58,18 @@
     },
     {
       "name": "invalid linear_speed rejected",
+      "status": "passed"
+    },
+    {
+      "name": "timer recreated on valid change",
+      "status": "passed"
+    },
+    {
+      "name": "defect reproduced (ZeroDivisionError)",
+      "status": "passed"
+    },
+    {
+      "name": "defect fixed (validation restored)",
       "status": "passed"
     }
   ],

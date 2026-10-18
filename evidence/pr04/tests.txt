@@ -6,19 +6,27 @@
 python3 -m pytest src/patrol/test -v
 ```
 
-Результат: 12 тестов пройдено
+Результат: 19 тестов пройдено, 0 провалено (0.43s, Python 3.12.3)
+
 - TestComputeTwist::test_none_pose_returns_zero_twist PASSED
 - TestComputeTwist::test_pose_returns_default_patrol_command PASSED
 - TestComputeTwist::test_pose_with_custom_speeds PASSED
+- TestValidatePublishHz::test_invalid_frequency_inf PASSED
+- TestValidatePublishHz::test_invalid_frequency_nan PASSED
+- TestValidatePublishHz::test_invalid_frequency_negative PASSED
+- TestValidatePublishHz::test_invalid_frequency_too_high PASSED
+- TestValidatePublishHz::test_invalid_frequency_zero PASSED
 - TestValidatePublishHz::test_valid_frequency_10hz PASSED
-- TestValidatePublishHz::test_valid_frequency_5hz PASSED
 - TestValidatePublishHz::test_valid_frequency_1hz PASSED
 - TestValidatePublishHz::test_valid_frequency_30hz PASSED
-- TestValidatePublishHz::test_invalid_frequency_zero PASSED
-- TestValidatePublishHz::test_invalid_frequency_negative PASSED
-- TestValidatePublishHz::test_invalid_frequency_nan PASSED
-- TestValidatePublishHz::test_invalid_frequency_inf PASSED
-- TestValidatePublishHz::test_invalid_frequency_too_high PASSED
+- TestValidatePublishHz::test_valid_frequency_5hz PASSED
+- TestPatrolNode::test_declared_parameters_have_defaults PASSED
+- TestPatrolNode::test_linear_speed_range PASSED
+- TestPatrolNode::test_publish_hz_change_recreates_timer PASSED
+- TestPatrolNode::test_publish_hz_nan_rejected PASSED
+- TestPatrolNode::test_publish_hz_negative_rejected PASSED
+- TestPatrolNode::test_publish_hz_zero_rejected_state_kept PASSED
+- TestPatrolNode::test_turn_rate_range PASSED
 
 ## Сборка
 
@@ -26,49 +34,76 @@ python3 -m pytest src/patrol/test -v
 colcon build --symlink-install --packages-select patrol
 ```
 
-Результат: успешно
+Результат: успешно (1.76s), пакет patrol собран.
 
-## Проверка параметров
+## Проверка типа позы
+
+```bash
+ros2 topic type /turtle1/pose
+```
+
+Результат: `turtlesim/msg/Pose`
+
+## Проверка параметров (живой опыт)
 
 ```bash
 # Запуск ноды
 ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel
-
-# Установка допустимой частоты
-ros2 param set /patrol publish_hz 5.0
-# Результат: успешно, таймер пересоздан
-
-# Установка недопустимой частоты (0)
-ros2 param set /patrol publish_hz 0.0
-# Результат: отклонено, старая частота сохранена
-
-# Установка отрицательной частоты
-ros2 param set /patrol publish_hz -5.0
-# Результат: отклонено
-
-# Установка NaN
-ros2 param set /patrol publish_hz NaN
-# Результат: отклонено (не конечное число)
-
-# Установка допустимой скорости
-ros2 param set /patrol linear_speed 0.8
-# Результат: успешно
-
-# Установка недопустимой скорости
-ros2 param set /patrol linear_speed 2.0
-# Результат: отклонено
-
-# Установка допустимого поворот
-ros2 param set /patrol turn_rate -0.5
-# Результат: успешно
+# Частота до изменения
+ros2 topic hz /turtle1/cmd_vel
+# average rate: 10.000 ... 9.999
 ```
 
-## Проверка дефекта (отключённая проверка)
+Допустимое изменение частоты 10 → 5 Гц:
 
-При временном отключении проверки частоты и передаче 0:
-- Нода пытается создать таймер с периодом 1/0 = бесконечность
-- Воспроизводимый отказ: ZeroDivisionError или невозможность создания таймера
+```bash
+ros2 param set /patrol publish_hz 5.0
+# Set parameter successful
+ros2 topic hz /turtle1/cmd_vel
+# average rate: 5.003 ... 5.000  (min 0.199s max 0.201s)
+```
 
-После возвращения проверки:
-- Значение 0 отклоняется, старая частота сохранена
-- Поток публикации продолжается с прежней частотой
+Недопустимые значения (отклонены, старая частота 5 Гц сохранена, поток продолжается):
+
+```bash
+ros2 param set /patrol publish_hz 0.0
+# Setting parameter failed
+ros2 param set /patrol publish_hz -3.0
+# Setting parameter failed
+ros2 param set /patrol publish_hz nan
+# Setting parameter failed: Wrong parameter type, expected 'Type.DOUBLE' got 'Type.STRING'
+```
+
+NaN-случай дополнительно подтверждён юнит-тестом `validate_publish_hz(float('nan'))`.
+
+## Проверка дефекта (отключённая проверка частоты)
+
+Временно отключена валидация `publish_hz` в `parameter_callback`, передано 0.0:
+
+```bash
+ros2 param set /patrol publish_hz 0.0
+```
+
+Реальный отказ в терминале ноды:
+
+```
+ZeroDivisionError: float division by zero
+  File ".../patrol/patrol/patrol.py", line 109, in parameter_callback
+    self.timer = self.create_timer(1.0 / self.publish_hz, self.timer_callback)
+                                   ~~~~^~~~~~~~~~~~~~~~~
+```
+
+После возвращения проверки (git checkout + rebuild) значение 0 отклоняется, старая частота и поток публикации остаются прежними.
+
+## Сервис /clear и список действий
+
+```bash
+ros2 service call /clear std_srvs/srv/Empty
+# requester: making request: std_srvs.srv.Empty_Request()
+# response: std_srvs.srv.Empty_Response()
+
+ros2 action list -t
+# /turtle1/rotate_absolute [turtlesim/action/RotateAbsolute]
+```
+
+Отличие запроса (request, сервис) и цели (goal, action) — см. parameters.md.
