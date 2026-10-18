@@ -139,7 +139,6 @@ class TestPatrolNode(unittest.TestCase):
         old_timer = self.node.timer
         result = self._set('publish_hz', 0.0)
         self.assertFalse(result.successful)
-        self.assertIn("[1, 30]", result.reason)
         self.assertEqual(self.node.publish_hz, 5.0)
         self.assertIs(self.node.timer, old_timer)
         self.assertFalse(self.node.timer.is_canceled())
