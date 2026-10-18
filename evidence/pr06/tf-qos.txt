@@ -1,0 +1,20 @@
+PR06 /tf_static QoS evidence — NOT CAPTURED
+==========================================
+
+The required live ROS commands could not be executed in this environment:
+- `ros2 topic info /tf_static --verbose`: ros2 is not installed (`command -v ros2` returned no path).
+- Docker fallback: `docker info` failed with permission denied for /var/run/docker.sock.
+
+No output below is claimed as an observed topic result. Capture this file again while
+the display.launch.py launch is running in a ROS environment, using the course commands:
+
+  ros2 topic info /tf_static --verbose
+  timeout 4 ros2 topic echo /tf_static --once --qos-durability transient_local --qos-reliability reliable
+  timeout 4 ros2 topic echo /tf_static --once --qos-durability volatile --qos-reliability reliable
+
+Expected result to verify there: the robot_state_publisher offers RELIABLE and
+TRANSIENT_LOCAL. A late transient-local reader receives the retained fixed transforms;
+a reliable volatile reader receives no old sample and times out (exit 124). `/tf` is
+volatile because it carries changing joint transforms, while `/tf_static` retains
+unchanging transforms for late subscribers. The expected result is not a substitute
+for the missing runtime capture.

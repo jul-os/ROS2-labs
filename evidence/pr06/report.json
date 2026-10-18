@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR06",
+  "commit": "a99b22e306b4fb80a92f120e198dc87d98da14fd",
+  "course_kit": {
+    "version": "v1-w06",
+    "archive_sha256": "6eda53e1c566f7f0a7e09d7afe1e5a6f3b98397175a7e57dede9a84c6d14d0fe"
+  },
+  "commands": [
+    "python3 -m unittest discover -s src/course_description/test -v",
+    "python3 -m py_compile src/course_description/launch/display.launch.py src/course_description/test/test_vehicle_model.py",
+    "xacro src/course_description/urdf/vehicle.urdf.xacro > /tmp/vehicle.urdf (not run: xacro unavailable)",
+    "check_urdf /tmp/vehicle.urdf (not run: check_urdf unavailable)",
+    "python3 .course-kit/v1/tools/check_practice.py PR06 --submission ."
+  ],
+  "tests": [
+    {
+      "name": "Structural contract tests for corrected vehicle model (5 tests)",
+      "status": "passed"
+    },
+    {
+      "name": "Expected-parent test with lidar parent changed to camera_link",
+      "status": "failed"
+    },
+    {
+      "name": "Python compilation and XML well-formedness",
+      "status": "passed"
+    },
+    {
+      "name": "Xacro expansion, check_urdf, colcon, RViz and live /tf_static QoS",
+      "status": "skipped"
+    },
+    {
+      "name": "Course public evidence checker",
+      "status": "passed"
+    }
+  ],
+  "defect": {
+    "reproducer": "В commit 47dd54f у lidar_joint parent установлен camera_link при сохранённом offset (0.28, 0, 0.38). Структурный тест ожидаемого parent упал: ожидался base_link, фактически camera_link.",
+    "root_cause": "Смещение сенсора интерпретируется относительно непосредственного parent. При parent=camera_link мировое положение лидара становится (0.56, 0, 0.76) м вместо ожидаемого (0.28, 0, 0.38) м.",
+    "proof_after": "В commit a99b22e parent восстановлен в base_link. Тот же набор из пяти тестов прошёл; xacro/check_urdf/live QoS требуют проверки в ROS-окружении."
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "time": {
+    "contact_academic_hours": 2,
+    "self_study_hours": 2
+  },
+  "ai_used": true
+}

@@ -1,0 +1,21 @@
+PR06 model checks (local environment)
+====================================
+
+PASS: python3 -m unittest discover -s src/course_description/test -v
+      5 tests passed for the corrected model.
+PASS: python3 -m py_compile src/course_description/launch/display.launch.py src/course_description/test/test_vehicle_model.py
+PASS: XML parsing of package.xml and vehicle.urdf.xacro.
+
+Defect reproduction at commit 47dd54f:
+FAIL as expected: test_sensor_frames_are_fixed_direct_children_with_expected_offset
+  joint='lidar_joint': expected parent 'base_link', got 'camera_link'.
+  The unchanged offset then places lidar at the camera offset relative to camera_link
+  (global translation 0.56, 0, 0.76 m), rather than 0.28, 0, 0.38 m.
+
+After correction at commit a99b22e:
+PASS: the same five structural tests, including the expected lidar parent and offset.
+
+NOT RUN: xacro expansion, check_urdf, colcon build/test, RViz and live ROS graph.
+Reason: ros2, xacro and check_urdf are not installed in this environment; the Docker
+daemon returned permission denied for /var/run/docker.sock. These runtime checks still
+need to be run in the course ROS container or another ROS 2 Lyrical/Jazzy environment.
