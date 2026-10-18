@@ -110,7 +110,7 @@ class PatrolNode(Node):
                     self.get_logger().info(f"publish_hz set to {param.value}")
                 else:
                     self.get_logger().warn(f"Invalid publish_hz: {reason}")
-                    return rclpy.parameter.SetParametersResult(successful=False)
+                    return SetParametersResult(successful=False)
 
         return SetParametersResult(successful=True)
 

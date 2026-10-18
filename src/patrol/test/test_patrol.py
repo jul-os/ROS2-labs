@@ -131,7 +131,7 @@ class TestPatrolNode(unittest.TestCase):
         self.assertEqual(self.node.publish_hz, 5.0)
         self.assertIsNot(self.node.timer, old_timer)
         self.assertEqual(self.node.timer.timer_period_ns, int(1e9 / 5.0))
-        self.assertFalse(self.node.timer.is_canceled)
+        self.assertFalse(self.node.timer.is_canceled())
 
     def test_publish_hz_zero_rejected_state_kept(self):
         """Zero is rejected: old frequency and running timer are preserved."""
@@ -142,7 +142,7 @@ class TestPatrolNode(unittest.TestCase):
         self.assertIn("[1, 30]", result.reason)
         self.assertEqual(self.node.publish_hz, 5.0)
         self.assertIs(self.node.timer, old_timer)
-        self.assertFalse(self.node.timer.is_canceled)
+        self.assertFalse(self.node.timer.is_canceled())
 
     def test_publish_hz_negative_rejected(self):
         """Negative frequency is rejected."""
