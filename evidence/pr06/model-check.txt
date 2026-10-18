@@ -11,6 +11,9 @@ PASS: check_urdf /tmp/vehicle.urdf; parsed root base_link with seven children.
 PASS: colcon test --packages-select course_description --event-handlers console_direct+.
       The course_description test_vehicle_model suite reports 5 passed.
 PASS: RViz and robot_state_publisher processes started using display.launch.py.
+PASS: ros2 run tf2_ros tf2_echo base_link lidar_link; translation [0.280, 0.000, 0.380], identity rotation.
+PASS: ros2 run tf2_tools view_frames; three fixed sensor frames have base_link as parent.
+      Generated frames_2026-10-18_17.41.25.gv and frames_2026-10-18_17.41.25.pdf.
 PASS: /tf_static QoS capture; see tf-qos.txt. Transient-local echo returned all
       three fixed sensor transforms (exit=0); volatile echo timed out (exit=124).
 

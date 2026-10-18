@@ -15,6 +15,8 @@
     "colcon test --packages-select course_description --event-handlers console_direct+",
     "colcon test-result --verbose",
     "ros2 launch course_description display.launch.py",
+    "ros2 run tf2_ros tf2_echo base_link lidar_link",
+    "ros2 run tf2_tools view_frames",
     "ros2 topic info /tf_static --verbose",
     "timeout 4 ros2 topic echo /tf_static --once --qos-durability transient_local --qos-reliability reliable",
     "timeout 4 ros2 topic echo /tf_static --once --qos-durability volatile --qos-reliability reliable",
@@ -43,6 +45,10 @@
     },
     {
       "name": "RViz and robot_state_publisher launch",
+      "status": "passed"
+    },
+    {
+      "name": "tf2_echo base_link lidar_link and view_frames",
       "status": "passed"
     },
     {
