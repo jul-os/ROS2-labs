@@ -5,6 +5,8 @@ PASS: python3 -m unittest discover -s src/course_description/test -v
       5 tests passed for the corrected model.
 PASS: python3 -m py_compile src/course_description/launch/display.launch.py src/course_description/test/test_vehicle_model.py
 PASS: XML parsing of package.xml and vehicle.urdf.xacro.
+PASS: python3 .course-kit/v1/tools/check_practice.py PR06 --submission .
+      PR06: контракт evidence выполнен (checked in a clean worktree at evidence commit ea840d7).
 
 Defect reproduction at commit 47dd54f:
 FAIL as expected: test_sensor_frames_are_fixed_direct_children_with_expected_offset
