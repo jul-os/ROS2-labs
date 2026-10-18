@@ -1,10 +1,24 @@
-PR06 model checks (local environment)
-====================================
+PR06 model checks (ROS 2 Jazzy container)
+=========================================
 
 PASS: python3 -m unittest discover -s src/course_description/test -v
       5 tests passed for the corrected model.
 PASS: python3 -m py_compile src/course_description/launch/display.launch.py src/course_description/test/test_vehicle_model.py
 PASS: XML parsing of package.xml and vehicle.urdf.xacro.
+PASS: colcon build --symlink-install --packages-select course_description.
+PASS: xacro src/course_description/urdf/vehicle.urdf.xacro > /tmp/vehicle.urdf.
+PASS: check_urdf /tmp/vehicle.urdf; parsed root base_link with seven children.
+PASS: colcon test --packages-select course_description --event-handlers console_direct+.
+      The course_description test_vehicle_model suite reports 5 passed.
+PASS: RViz and robot_state_publisher processes started using display.launch.py.
+PASS: /tf_static QoS capture; see tf-qos.txt. Transient-local echo returned all
+      three fixed sensor transforms (exit=0); volatile echo timed out (exit=124).
+
+NOTE: colcon test-result --verbose reported a total summary of 6 tests, 0 errors,
+0 failures and 0 skipped, but also logged stale metadata warnings for the old
+build/course_bringup and build/patrol directories (their package.xml files are absent).
+The current course_description package test itself passed.
+
 PASS: python3 .course-kit/v1/tools/check_practice.py PR06 --submission .
       PR06: контракт evidence выполнен (checked in a clean worktree at evidence commit ea840d7).
 
@@ -16,8 +30,5 @@ FAIL as expected: test_sensor_frames_are_fixed_direct_children_with_expected_off
 
 After correction at commit a99b22e:
 PASS: the same five structural tests, including the expected lidar parent and offset.
-
-NOT RUN: xacro expansion, check_urdf, colcon build/test, RViz and live ROS graph.
-Reason: ros2, xacro and check_urdf are not installed in this environment; the Docker
-daemon returned permission denied for /var/run/docker.sock. These runtime checks still
-need to be run in the course ROS container or another ROS 2 Lyrical/Jazzy environment.
+PASS: Xacro expansion and check_urdf in ROS 2 Jazzy; live fixed transforms and QoS
+      confirmed by the capture in tf-qos.txt.

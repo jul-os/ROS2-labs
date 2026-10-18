@@ -9,8 +9,15 @@
   "commands": [
     "python3 -m unittest discover -s src/course_description/test -v",
     "python3 -m py_compile src/course_description/launch/display.launch.py src/course_description/test/test_vehicle_model.py",
-    "xacro src/course_description/urdf/vehicle.urdf.xacro > /tmp/vehicle.urdf (not run: xacro unavailable)",
-    "check_urdf /tmp/vehicle.urdf (not run: check_urdf unavailable)",
+    "colcon build --symlink-install --packages-select course_description",
+    "xacro src/course_description/urdf/vehicle.urdf.xacro > /tmp/vehicle.urdf",
+    "check_urdf /tmp/vehicle.urdf",
+    "colcon test --packages-select course_description --event-handlers console_direct+",
+    "colcon test-result --verbose",
+    "ros2 launch course_description display.launch.py",
+    "ros2 topic info /tf_static --verbose",
+    "timeout 4 ros2 topic echo /tf_static --once --qos-durability transient_local --qos-reliability reliable",
+    "timeout 4 ros2 topic echo /tf_static --once --qos-durability volatile --qos-reliability reliable",
     "python3 .course-kit/v1/tools/check_practice.py PR06 --submission ."
   ],
   "tests": [
@@ -27,8 +34,20 @@
       "status": "passed"
     },
     {
-      "name": "Xacro expansion, check_urdf, colcon, RViz and live /tf_static QoS",
-      "status": "skipped"
+      "name": "Xacro expansion and check_urdf",
+      "status": "passed"
+    },
+    {
+      "name": "colcon build and course_description tests (5 passed)",
+      "status": "passed"
+    },
+    {
+      "name": "RViz and robot_state_publisher launch",
+      "status": "passed"
+    },
+    {
+      "name": "/tf_static QoS durability: transient_local receives; volatile times out",
+      "status": "passed"
     },
     {
       "name": "Course public evidence checker",
@@ -38,7 +57,7 @@
   "defect": {
     "reproducer": "В commit 47dd54f у lidar_joint parent установлен camera_link при сохранённом offset (0.28, 0, 0.38). Структурный тест ожидаемого parent упал: ожидался base_link, фактически camera_link.",
     "root_cause": "Смещение сенсора интерпретируется относительно непосредственного parent. При parent=camera_link мировое положение лидара становится (0.56, 0, 0.76) м вместо ожидаемого (0.28, 0, 0.38) м.",
-    "proof_after": "В commit a99b22e parent восстановлен в base_link. Тот же набор из пяти тестов прошёл; xacro/check_urdf/live QoS требуют проверки в ROS-окружении."
+    "proof_after": "В commit a99b22e parent восстановлен в base_link. Тот же набор из пяти тестов прошёл; Xacro и check_urdf успешно проверили модель, а live /tf_static показал три ожидаемых преобразования для transient_local (exit=0) и отсутствие старого сообщения для volatile (exit=124)."
   },
   "claims": {
     "public_tests_passed": true,
