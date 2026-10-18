@@ -7,8 +7,8 @@ Parameters: linear_speed, turn_rate, publish_hz.
 
 import math
 import rclpy
+from rcl_interfaces.msg import SetParametersResult
 from rclpy.node import Node
-from rclpy.parameter import Parameter
 from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
 
@@ -90,7 +90,7 @@ class PatrolNode(Node):
                     self.get_logger().info(f"linear_speed set to {param.value}")
                 else:
                     self.get_logger().warn(f"Invalid linear_speed: {param.value}")
-                    return rclpy.parameter.SetParametersResult(successful=False)
+                    return SetParametersResult(successful=False)
 
             elif param.name == 'turn_rate':
                 if math.isfinite(param.value) and -1.0 <= param.value <= 1.0:
@@ -98,7 +98,7 @@ class PatrolNode(Node):
                     self.get_logger().info(f"turn_rate set to {param.value}")
                 else:
                     self.get_logger().warn(f"Invalid turn_rate: {param.value}")
-                    return rclpy.parameter.SetParametersResult(successful=False)
+                    return SetParametersResult(successful=False)
 
             elif param.name == 'publish_hz':
                 is_valid, reason = validate_publish_hz(param.value)
@@ -112,7 +112,7 @@ class PatrolNode(Node):
                     self.get_logger().warn(f"Invalid publish_hz: {reason}")
                     return rclpy.parameter.SetParametersResult(successful=False)
 
-        return rclpy.parameter.SetParametersResult(successful=True)
+        return SetParametersResult(successful=True)
 
     def pose_callback(self, msg):
         """Store the last received pose."""
