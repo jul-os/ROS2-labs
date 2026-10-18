@@ -1,0 +1,79 @@
+x: 4.420592784881592
+y: 5.976719379425049
+theta: -0.7391852736473083
+linear_velocity: 0.5
+angular_velocity: 0.30000001192092896
+---
+
+exit_code=0
+Type: turtlesim/msg/Pose
+
+Publisher count: 1
+
+Node name: pose_relay
+Node namespace: /robot_a
+Topic type: turtlesim/msg/Pose
+Topic type hash: RIHS01_739beba26bcba6920404ba722b7b8321348512f92ea5be235c47251940dd8aa9
+Endpoint type: PUBLISHER
+GID: 01.0f.cf.38.eb.06.5e.90.00.00.00.00.00.00.13.03
+QoS profile:
+  Reliability: BEST_EFFORT
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Subscription count: 2
+
+Node name: pose_subscriber
+Node namespace: /robot_a
+Topic type: turtlesim/msg/Pose
+Topic type hash: RIHS01_739beba26bcba6920404ba722b7b8321348512f92ea5be235c47251940dd8aa9
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.cf.38.ec.06.d9.a7.00.00.00.00.00.00.13.04
+QoS profile:
+  Reliability: BEST_EFFORT
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Node name: rosbag2_recorder
+Node namespace: /
+Topic type: turtlesim/msg/Pose
+Topic type hash: RIHS01_739beba26bcba6920404ba722b7b8321348512f92ea5be235c47251940dd8aa9
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.cf.38.ed.06.34.7b.00.00.00.00.00.00.26.04
+QoS profile:
+  Reliability: BEST_EFFORT
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+
+Files:             bag_0.mcap
+Bag size:          119.3 KiB
+Storage id:        mcap
+ROS Distro:        jazzy
+Duration:          26.445477872s
+Start:             Oct 18 2026 16:24:11.219102647 (1792340651.219102647)
+End:               Oct 18 2026 16:24:37.664580519 (1792340677.664580519)
+Messages:          1654
+Topic information: Topic: /robot_a/sensor_pose | Type: turtlesim/msg/Pose | Count: 1654 | Serialization Format: cdr
+Service:           0
+Service information:
+x: 5.874161720275879
+y: 8.844024658203125
+theta: 2.9375998973846436
+linear_velocity: 0.5
+angular_velocity: 0.30000001192092896
+---
+
+replay_best_effort_exit_code=0

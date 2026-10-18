@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR05",
+  "commit": "9047691e06ce4839911e9e33dde975a023193afd",
+  "course_kit": {
+    "version": "v1-w06",
+    "archive_sha256": "6eda53e1c566f7f0a7e09d7afe1e5a6f3b98397175a7e57dede9a84c6d14d0fe"
+  },
+  "commands": [
+    "colcon build --symlink-install --packages-up-to course_bringup",
+    "colcon test --packages-up-to course_bringup --event-handlers console_direct+",
+    "colcon test-result --verbose",
+    "python3 -m pytest src/patrol/test -v",
+    "ros2 launch course_bringup patrol.launch.py namespace:=robot_a subscriber_reliability:=reliable record:=false",
+    "timeout 3s ros2 topic echo /robot_a/sensor_pose --qos-reliability reliable --once",
+    "ros2 topic info /robot_a/sensor_pose --verbose",
+    "ros2 launch course_bringup patrol.launch.py namespace:=robot_a subscriber_reliability:=best_effort record:=true bag_dir:=evidence/pr05/bag",
+    "timeout 3s ros2 topic echo /robot_a/sensor_pose --qos-reliability best_effort --once",
+    "cp evidence/pr05/bag/metadata.yaml evidence/pr05/bag-metadata.yaml",
+    "ros2 bag info evidence/pr05/bag",
+    "ros2 bag play evidence/pr05/bag --qos-profile-overrides-path config/qos-overrides.yaml",
+    "timeout 5s ros2 topic echo /robot_a/sensor_pose --qos-reliability reliable --once",
+    "timeout 5s ros2 topic echo /robot_a/sensor_pose --qos-reliability best_effort --once"
+  ],
+  "tests": [
+    {
+      "name": "colcon build for patrol and course_bringup",
+      "status": "passed"
+    },
+    {
+      "name": "colcon tests: 23 patrol tests and 2 course_bringup launch-contract tests",
+      "status": "passed"
+    },
+    {
+      "name": "live reliable subscriber against best-effort publisher: no sample, timeout 124",
+      "status": "passed"
+    },
+    {
+      "name": "live best-effort subscriber: pose received, exit code 0",
+      "status": "passed"
+    },
+    {
+      "name": "MCAP recording: one topic and 1654 messages",
+      "status": "passed"
+    },
+    {
+      "name": "replay with best-effort QoS override: reliable subscriber gets no sample; best-effort subscriber receives pose",
+      "status": "passed"
+    }
+  ],
+  "defect": {
+    "reproducer": "При работающем launch выполнить timeout 3s ros2 topic echo /robot_a/sensor_pose --qos-reliability reliable --once. Топик виден, но команда завершается timeout с кодом 124; ROS сообщает о несовместимой RELIABILITY.",
+    "root_cause": "pose_relay предлагает BEST_EFFORT для потока sensor_pose, тогда как reliable-подписчик запрашивает более строгую RELIABLE-политику. Предложенный профиль не удовлетворяет запросу подписчика, поэтому сообщения не доставляются.",
+    "proof_after": "С best_effort подписчиком живой echo получает Pose (exit code 0). Тот же MCAP содержит один поток /robot_a/sensor_pose (1654 сообщения); при replay с config/qos-overrides.yaml reliable echo не получает сообщения, а best_effort echo получает Pose."
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true,
+    "replay_verified": true
+  },
+  "time": {
+    "contact_academic_hours": 2,
+    "self_study_hours": 2
+  },
+  "ai_used": true
+}
