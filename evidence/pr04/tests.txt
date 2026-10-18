@@ -1,0 +1,74 @@
+# PR04 — Результаты тестов
+
+## Юнит-тесты
+
+```bash
+python3 -m pytest src/patrol/test -v
+```
+
+Результат: 12 тестов пройдено
+- TestComputeTwist::test_none_pose_returns_zero_twist PASSED
+- TestComputeTwist::test_pose_returns_default_patrol_command PASSED
+- TestComputeTwist::test_pose_with_custom_speeds PASSED
+- TestValidatePublishHz::test_valid_frequency_10hz PASSED
+- TestValidatePublishHz::test_valid_frequency_5hz PASSED
+- TestValidatePublishHz::test_valid_frequency_1hz PASSED
+- TestValidatePublishHz::test_valid_frequency_30hz PASSED
+- TestValidatePublishHz::test_invalid_frequency_zero PASSED
+- TestValidatePublishHz::test_invalid_frequency_negative PASSED
+- TestValidatePublishHz::test_invalid_frequency_nan PASSED
+- TestValidatePublishHz::test_invalid_frequency_inf PASSED
+- TestValidatePublishHz::test_invalid_frequency_too_high PASSED
+
+## Сборка
+
+```bash
+colcon build --symlink-install --packages-select patrol
+```
+
+Результат: успешно
+
+## Проверка параметров
+
+```bash
+# Запуск ноды
+ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel
+
+# Установка допустимой частоты
+ros2 param set /patrol publish_hz 5.0
+# Результат: успешно, таймер пересоздан
+
+# Установка недопустимой частоты (0)
+ros2 param set /patrol publish_hz 0.0
+# Результат: отклонено, старая частота сохранена
+
+# Установка отрицательной частоты
+ros2 param set /patrol publish_hz -5.0
+# Результат: отклонено
+
+# Установка NaN
+ros2 param set /patrol publish_hz NaN
+# Результат: отклонено (не конечное число)
+
+# Установка допустимой скорости
+ros2 param set /patrol linear_speed 0.8
+# Результат: успешно
+
+# Установка недопустимой скорости
+ros2 param set /patrol linear_speed 2.0
+# Результат: отклонено
+
+# Установка допустимого поворот
+ros2 param set /patrol turn_rate -0.5
+# Результат: успешно
+```
+
+## Проверка дефекта (отключённая проверка)
+
+При временном отключении проверки частоты и передаче 0:
+- Нода пытается создать таймер с периодом 1/0 = бесконечность
+- Воспроизводимый отказ: ZeroDivisionError или невозможность создания таймера
+
+После возвращения проверки:
+- Значение 0 отклоняется, старая частота сохранена
+- Поток публикации продолжается с прежней частотой
