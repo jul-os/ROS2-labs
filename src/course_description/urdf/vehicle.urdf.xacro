@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="course_ackermann">
+  <!-- SI units; x forward, y left, z up (REP-103). -->
+  <xacro:arg name="base_length" default="1.05"/>
+  <xacro:arg name="base_width" default="0.52"/>
+  <xacro:arg name="body_height" default="0.22"/>
+  <xacro:arg name="body_z" default="0.12"/>
+  <xacro:arg name="wheelbase" default="0.8"/>
+  <xacro:arg name="track" default="0.62"/>
+  <xacro:arg name="wheel_radius" default="0.12"/>
+  <xacro:arg name="wheel_width" default="0.07"/>
+  <xacro:arg name="sensor_x" default="0.28"/>
+  <xacro:arg name="sensor_z" default="0.38"/>
+
+  <xacro:property name="base_length" value="$(arg base_length)"/>
+  <xacro:property name="base_width" value="$(arg base_width)"/>
+  <xacro:property name="body_height" value="$(arg body_height)"/>
+  <xacro:property name="body_z" value="$(arg body_z)"/>
+  <xacro:property name="wheelbase" value="$(arg wheelbase)"/>
+  <xacro:property name="track" value="$(arg track)"/>
+  <xacro:property name="wheel_radius" value="$(arg wheel_radius)"/>
+  <xacro:property name="wheel_width" value="$(arg wheel_width)"/>
+  <xacro:property name="sensor_x" value="$(arg sensor_x)"/>
+  <xacro:property name="sensor_z" value="$(arg sensor_z)"/>
+
+  <material name="body_blue"><color rgba="0.05 0.36 0.72 1"/></material>
+  <material name="rubber"><color rgba="0.04 0.04 0.04 1"/></material>
+  <material name="sensor_dark"><color rgba="0.18 0.2 0.22 1"/></material>
+
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0 0 ${body_z}"/>
+      <mass value="12.0"/>
+      <inertia ixx="0.55" ixy="0" ixz="0" iyy="1.10" iyz="0" izz="1.40"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 ${body_z}"/>
+      <geometry><box size="${base_length} ${base_width} ${body_height}"/></geometry>
+      <material name="body_blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${body_z}"/>
+      <geometry><box size="${base_length} ${base_width} ${body_height}"/></geometry>
+    </collision>
+  </link>
+
+  <link name="camera_link">
+    <inertial><mass value="0.033333333333"/><inertia ixx="0.000333333333" ixy="0" ixz="0" iyy="0.000333333333" iyz="0" izz="0.000333333333"/></inertial>
+    <visual><geometry><box size="0.08 0.08 0.05"/></geometry><material name="sensor_dark"/></visual>
+    <collision><geometry><box size="0.08 0.08 0.05"/></geometry></collision>
+  </link>
+  <joint name="camera_joint" type="fixed">
+    <parent link="base_link"/><child link="camera_link"/>
+    <origin xyz="${sensor_x} 0 ${sensor_z}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="lidar_link">
+    <inertial><mass value="0.033333333333"/><inertia ixx="0.000333333333" ixy="0" ixz="0" iyy="0.000333333333" iyz="0" izz="0.000333333333"/></inertial>
+    <visual><geometry><cylinder radius="0.045" length="0.04"/></geometry><material name="sensor_dark"/></visual>
+    <collision><geometry><cylinder radius="0.045" length="0.04"/></geometry></collision>
+  </link>
+  <joint name="lidar_joint" type="fixed">
+    <parent link="camera_link"/><child link="lidar_link"/>
+    <origin xyz="${sensor_x} 0 ${sensor_z}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="imu_link">
+    <inertial><mass value="0.033333333334"/><inertia ixx="0.000333333334" ixy="0" ixz="0" iyy="0.000333333334" iyz="0" izz="0.000333333334"/></inertial>
+    <visual><geometry><box size="0.04 0.03 0.015"/></geometry><material name="sensor_dark"/></visual>
+    <collision><geometry><box size="0.04 0.03 0.015"/></geometry></collision>
+  </link>
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/><child link="imu_link"/>
+    <origin xyz="${sensor_x} 0 ${sensor_z}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Cylinder axes are rotated onto REP-103's lateral y axis. -->
+  <xacro:macro name="wheel" params="side x_pos y_pos">
+    <link name="${side}_wheel">
+      <inertial>
+        <mass value="0.8"/>
+        <inertia ixx="0.0032067" ixy="0" ixz="0" iyy="0.00576" iyz="0" izz="0.0032067"/>
+      </inertial>
+      <visual><origin rpy="1.57079632679 0 0"/><geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry><material name="rubber"/></visual>
+      <collision><origin rpy="1.57079632679 0 0"/><geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry></collision>
+    </link>
+    <joint name="${side}_wheel_joint" type="continuous">
+      <parent link="base_link"/><child link="${side}_wheel"/>
+      <origin xyz="${x_pos} ${y_pos} 0" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:wheel side="front_left" x_pos="${wheelbase / 2}" y_pos="${track / 2}"/>
+  <xacro:wheel side="front_right" x_pos="${wheelbase / 2}" y_pos="${-track / 2}"/>
+  <xacro:wheel side="rear_left" x_pos="${-wheelbase / 2}" y_pos="${track / 2}"/>
+  <xacro:wheel side="rear_right" x_pos="${-wheelbase / 2}" y_pos="${-track / 2}"/>
+</robot>

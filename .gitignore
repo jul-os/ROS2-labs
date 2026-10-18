@@ -6,4 +6,7 @@ robotics-course-kit-*.tar.gz
 build/
 install/
 log/
+__pycache__/
+.pytest_cache/
+*.py[cod]
 robotics-course-kit-*.sha256.txt
